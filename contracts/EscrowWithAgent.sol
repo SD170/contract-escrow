@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.4.22 <0.9.0;
+// import "zeppelin-solidity/contracts/ownership/Ownable.sol";
 
 /// @title An escrow contract with a third-party agent
 /// @author SD17
 /// @notice this contract holds some ether from a payer. Keeps it until the third-party agent desides to send the ether to the payee
 contract Escrow {
-    address public payer;
-    address payable public payee; // payable: payees address needs to transfer the ether
+    address payable public payer; // payable: payer address needs to transfer the ether to own addrss, if un-successful
+    address payable public payee; // payable: payees address needs to transfer the ether to own addrss, if successful
     address public agent;
     uint256 public amount;
     Stages public currentStage;
@@ -56,6 +57,15 @@ contract Escrow {
         payee.transfer(amount);
         currentStage = Stages.CLOSED;
     }
+    
+    function revertEscrow() public {
+        require(msg.sender == agent, "Only agent can revert the contract");
+        require(currentStage == Stages.ONGOING && currentStage == Stages.OPEN); // can only be reverted in these two stages
+        payer.transfer(amount);
+        currentStage = Stages.CLOSED;
+    }
+
+
 
     function stageOf() public view returns (Stages) {
         return currentStage;
