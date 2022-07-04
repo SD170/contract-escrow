@@ -27,39 +27,26 @@ contract("EscrowWithAgent", (accounts) => {
       "EscrowWithAgent contract should be defined"
     );
 
-    // let result = await truffleAssert.createTransactionResult(
-    //   escrowWithAgentInstance,
-    //   escrowWithAgentInstance.transactionHash
-    // );
-    // //   handle event
-    // await truffleAssert.eventEmitted(
-    //   result,
-    //   "stageChange",
-    //   (event) => {
-    //     // to check if event is emitted with correct parameter
-    //     // for EscrowWithAgent it's currentStage
-    //     return event.currentStage == Stages.OPEN;
-    //   },
-    //   "The stage should be ONGOING"
-    // );
   });
 
   // calling public variable
   // auctionInstance.winners(2);  // an array "winner" with idx 2
 
   // positive test 1
-  describe("depositing with address[1]", async () => {
-    it("depositing with address[1]", async () => {
-      let result = await escrowWithAgentInstance.deposit({
+  describe("depositing with address[1] and releasing with address[0]", async () => {
+    const depositedValue = 20;
+    let result;
+    it("depositing with address[1] for 'stageChange'", async () => {
+      result = await escrowWithAgentInstance.deposit({
         // value: Number.toString(web3.utils.fromWei(20, 'ether')), // 20 ether
         // value: web3.utils.fromWei(web3.utils.toBN(20), "ether"), // 20 ether
-        value: 20, // 20 gwei
+        value: depositedValue, // 20 gwei
         from: accounts[1]
       });
 
       assert.equal(true, result.receipt.status, "status should be true");
 
-      //   handle event
+      //   handle event for "stageChange" event
       await truffleAssert.eventEmitted(
         result,
         "stageChange",
@@ -70,22 +57,53 @@ contract("EscrowWithAgent", (accounts) => {
         },
         "The stage should be ONGOING"
       );
+      // handle event for "deposited" event
+      await truffleAssert.eventEmitted(
+        result,
+        "deposited",
+        (event) => {
+          // to check if event is emitted with correct parameter
+          // for EscrowWithAgent it's currentStage
+          return event.currentStage == Stages.ONGOING && event.amount == depositedValue;
+        },
+        `The stage should be ONGOING and amount should be ${depositedValue}`
+      );
 
-      //
-      // it("register with address[2]", async () => {
-      //   let result = await ballotInstance.register(accounts[2], {
-      //     from: accounts[0]
-      //   });
-      //   assert.equal(true, result.receipt.status);
-      // });
-      // it("register with address[3]", async () => {
-      //   let result = await ballotInstance.register(accounts[3], {
-      //     from: accounts[0]
-      //   });
-      //   assert.equal(true, result.receipt.status);
-      // });
+    });
+    it("releasing with address[0] for 'stageChange'", async () => {
+      result = await escrowWithAgentInstance.release({
+        from: accounts[0]
+      });
+
+      assert.equal(true, result.receipt.status, "status should be true");
+
+      //   handle event for "stageChange" event
+      await truffleAssert.eventEmitted(
+        result,
+        "stageChange",
+        (event) => {
+          // to check if event is emitted with correct parameter
+          // for EscrowWithAgent it's currentStage
+          return event.currentStage == Stages.CLOSED;
+        },
+        "The stage should be CLOSED"
+      );
+      // handle event for "deposited" event
+      await truffleAssert.eventEmitted(
+        result,
+        "released",
+        (event) => {
+          // to check if event is emitted with correct parameter
+          // for EscrowWithAgent it's currentStage
+          return event.currentStage == Stages.CLOSED && event.amount == depositedValue;
+        },
+        `The stage should be CLOSED and amount should be ${depositedValue}`
+      );
+
     });
   });
+  // positive test 2
+ 
   
   // // negetive event test 1
   // describe("registering with the addresses", async () => {
