@@ -26,17 +26,34 @@ contract("EscrowWithAgent", (accounts) => {
       escrowWithAgentInstance !== undefined,
       "EscrowWithAgent contract should be defined"
     );
-
   });
 
   // calling public variable
   // auctionInstance.winners(2);  // an array "winner" with idx 2
+  
 
-  // positive test 1
-  describe("depositing with address[1] and releasing with address[0]", async () => {
+  // negetive test 1
+  describe("depositing with accounts[4]", async () => {
+    const depositedValue = 20;
+    it("depositing with accounts[4]", async () => {
+      await truffleAssert.reverts(
+        // the first param could be a argument passed to the deposit() method. But deposit() doesn't take one.
+        // deposit(param1, param2, {value, form});
+        escrowWithAgentInstance.deposit({
+          // value: Number.toString(web3.utils.fromWei(20, 'ether')), // 20 ether
+          // value: web3.utils.fromWei(web3.utils.toBN(20), "ether"), // 20 ether
+          value: depositedValue, // 20 gwei
+          from: accounts[4]
+        })
+      );
+    });
+  });
+
+  describe("depositing with accounts[1] and releasing with accounts[0]", async () => {
     const depositedValue = 20;
     let result;
-    it("depositing with address[1] for 'stageChange'", async () => {
+    // positive test 1
+    it("depositing with accounts[1] for 'stageChange'", async () => {
       result = await escrowWithAgentInstance.deposit({
         // value: Number.toString(web3.utils.fromWei(20, 'ether')), // 20 ether
         // value: web3.utils.fromWei(web3.utils.toBN(20), "ether"), // 20 ether
@@ -64,13 +81,40 @@ contract("EscrowWithAgent", (accounts) => {
         (event) => {
           // to check if event is emitted with correct parameter
           // for EscrowWithAgent it's currentStage
-          return event.currentStage == Stages.ONGOING && event.amount == depositedValue;
+          return (
+            event.currentStage == Stages.ONGOING &&
+            event.amount == depositedValue
+          );
         },
         `The stage should be ONGOING and amount should be ${depositedValue}`
       );
-
     });
-    it("releasing with address[0] for 'stageChange'", async () => {
+
+    // negetive test 2:
+    it("releasing with accounts[1] who is not the agent", async () => {
+      await truffleAssert.reverts(
+        // the first param could be a argument passed to the deposit() method. But deposit() doesn't take one.
+        // deposit(param1, param2, {value, form});
+        escrowWithAgentInstance.release({
+          value: depositedValue, // 20 gwei
+          from: accounts[1]
+        })
+      );
+    });
+
+    // negetive test 3:
+    it("revertEscrow with accounts[1] who is not the agent", async () => {
+      await truffleAssert.reverts(
+        // the first param could be a argument passed to the deposit() method. But deposit() doesn't take one.
+        // deposit(param1, param2, {value, form});
+        escrowWithAgentInstance.revertEscrow({
+          from: accounts[1]
+        })
+      );
+    });
+
+    // positive test 2
+    it("releasing with accounts[0] for 'stageChange'", async () => {
       result = await escrowWithAgentInstance.release({
         from: accounts[0]
       });
@@ -95,27 +139,13 @@ contract("EscrowWithAgent", (accounts) => {
         (event) => {
           // to check if event is emitted with correct parameter
           // for EscrowWithAgent it's currentStage
-          return event.currentStage == Stages.CLOSED && event.amount == depositedValue;
+          return (
+            event.currentStage == Stages.CLOSED &&
+            event.amount == depositedValue
+          );
         },
         `The stage should be CLOSED and amount should be ${depositedValue}`
       );
-
     });
   });
-  // positive test 2
- 
-  
-  // // negetive event test 1
-  // describe("registering with the addresses", async () => {
-  //   it("register with address[5] by himself - should fail", async () => {
-  //     // truffleAssert uses chai under the hood.
-  //     // we can check for reverts using this
-  //     await truffleAssert.reverts(
-  //       ballotInstance.register(accounts[5], {
-  //         // we can pass the contract.method() call directly as param
-  //         from: accounts[5]
-  //       })
-  //     );
-  //   });
-  // });
 });
