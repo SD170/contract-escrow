@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.4.22 <0.9.0;
 
-// import "zeppelin-solidity/contracts/ownership/Ownable.sol";
-
 /// @title An escrow contract with a third-party agent
 /// @author SD17
 /// @notice this contract holds some ether from a payer. Keeps it until the third-party agent desides to send the ether to the payee
@@ -30,11 +28,13 @@ contract EscrowWithAgent {
         CLOSED
     }
 
-    constructor(
+    // use this function instead of the constructor
+    // since creation will be done using createClone() function
+    function init(
         address payable _payer,
         address payable _payee,
         uint256 _amount
-    ) {
+    ) public payable {
         payer = _payer;
         payee = _payee;
         agent = msg.sender;
