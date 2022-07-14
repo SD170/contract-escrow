@@ -61,11 +61,6 @@ contract("EscrowFactory", (accounts) => {
       );
     });
 
-    //   await escrowFactoryInstance.createChild(accounts[1], accounts[0], depositedValue);
-    //   await escrowFactoryInstance.createChild(accounts[1], accounts[0], depositedValue);
-    //   escrowInstance = await escrowFactoryInstance.getChildren();
-    // it("creating a new child clone", async () => {});
-
     // negetive test 1
     it("depositing with accounts[4]", async () => {
       await truffleAssert.reverts(
@@ -84,8 +79,6 @@ contract("EscrowFactory", (accounts) => {
     // positive test 1
     it("depositing with accounts[1] for 'stageChange'", async () => {
       result = await escrowInstance.deposit({
-        // value: Number.toString(web3.utils.fromWei(20, 'ether')), // 20 ether
-        // value: web3.utils.fromWei(web3.utils.toBN(20), "ether"), // 20 ether
         value: depositedValue, // 20 gwei
         from: accounts[1]
       });
@@ -108,8 +101,6 @@ contract("EscrowFactory", (accounts) => {
         result,
         "deposited",
         (event) => {
-          // to check if event is emitted with correct parameter
-          // for EscrowWithAgent it's currentStage
           return (
             event.currentStage == Stages.ONGOING &&
             event.amount == depositedValue
@@ -122,8 +113,6 @@ contract("EscrowFactory", (accounts) => {
     // negetive test 2:
     it("releasing with accounts[1] who is not the agent", async () => {
       await truffleAssert.reverts(
-        // the first param could be a argument passed to the deposit() method. But deposit() doesn't take one.
-        // deposit(param1, param2, {value, form});
         escrowInstance.release({
           value: depositedValue, // 20 gwei
           from: accounts[1]
@@ -134,8 +123,6 @@ contract("EscrowFactory", (accounts) => {
     // negetive test 3:
     it("revertEscrow with accounts[1] who is not the agent", async () => {
       await truffleAssert.reverts(
-        // the first param could be a argument passed to the deposit() method. But deposit() doesn't take one.
-        // deposit(param1, param2, {value, form});
         escrowInstance.revertEscrow({
           from: accounts[1]
         })
@@ -155,8 +142,6 @@ contract("EscrowFactory", (accounts) => {
         result,
         "stageChange",
         (event) => {
-          // to check if event is emitted with correct parameter
-          // for EscrowWithAgent it's currentStage
           return event.currentStage == Stages.CLOSED;
         },
         "The stage should be CLOSED"
@@ -166,8 +151,6 @@ contract("EscrowFactory", (accounts) => {
         result,
         "released",
         (event) => {
-          // to check if event is emitted with correct parameter
-          // for EscrowWithAgent it's currentStage
           return (
             event.currentStage == Stages.CLOSED &&
             event.amount == depositedValue
