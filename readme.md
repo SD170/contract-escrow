@@ -37,8 +37,6 @@ truffle compile
 truffle migrate --reset
 ```
 
-that's all!!
-
 4. run the tests
 
 ```
