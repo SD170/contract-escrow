@@ -1,3 +1,4 @@
+/**
 // we can check for reverts or emitted events using truffleAssert
 // it uses chai under the hood.
 const truffleAssert = require("truffle-assertions");
@@ -13,7 +14,6 @@ const Stages = {
 
 //accounts[0] is the default account
 
-/**
  contract("EscrowWithAgent", (accounts) => {
    let escrowWithAgentInstance;
  
@@ -31,7 +31,7 @@ const Stages = {
    });
  
    // calling public variable
-   // auctionInstance.winners(2);  // an array "winner" with idx 2
+   // await auctionInstance.winners(2);  // an array "winner" with idx 2
    
  
    // negetive test 1

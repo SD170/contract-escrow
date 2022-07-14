@@ -28,16 +28,18 @@ contract EscrowWithAgent {
         CLOSED
     }
 
+
     // use this function instead of the constructor
     // since creation will be done using createClone() function
-    function init(
+    function init (
         address payable _payer,
         address payable _payee,
+        address _agent,
         uint256 _amount
-    ) public payable {
+    ) public  {
         payer = _payer;
         payee = _payee;
-        agent = msg.sender;
+        agent = _agent; // agent needs to be sent by the factory, factory's msg.sender is agent
         amount = _amount; // the amount of real ether
 
         // the stage sets to OPEN
