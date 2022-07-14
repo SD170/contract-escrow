@@ -7,5 +7,7 @@ module.exports = function (deployer, network, accounts) {
   // // we can have a third variable, which contains all the accounts.
 
   deployer.deploy(EscrowWithAgent).then(()=>  deployer.deploy(EscrowFactory, EscrowWithAgent.address));
+  // deploying EscrowWithAgent first.
+  // then passing the that address to the Factory contract.
   
 };
