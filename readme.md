@@ -43,4 +43,4 @@ truffle migrate --reset
 truffle test
 ```
 
-Thanks for checking out.
+#### Thanks for checking out !!!
