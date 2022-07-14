@@ -159,7 +159,6 @@ contract("EscrowFactory", (accounts) => {
         `The stage should be CLOSED and amount should be ${depositedValue}`
       );
     });
-
   });
 
   describe("access public array variables", async () => {
@@ -169,6 +168,5 @@ contract("EscrowFactory", (accounts) => {
       console.log(`address of escrows[0] ${eAdd}`);
       assert(true);
     });
-  })
-
+  });
 });
